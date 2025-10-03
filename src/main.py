@@ -2,8 +2,10 @@ import os
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import RedirectResponse
-from helpers.text_extraction import TranscriptReader
 from io import BytesIO
+
+from helpers.text_extraction import TranscriptReader
+from pipeline import sn_pipeline
 
 app = FastAPI(title="ServiceNow AI Agents API", version="0.1.0")
 
@@ -24,8 +26,21 @@ async def extract_transcript(file: UploadFile = File(...)):
         text = reader.read()
         # Store transcript in-memory under filename (replace with DB later)
         TRANSCRIPTS[file.filename] = text
-        return {"message": "Upload successful!", "text": text}
+        
+        return {"message": "Upload successful!", "filename": file.filename}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error reading file: {e}") 
+        raise HTTPException(status_code=500, detail=f"Error reading file: {e}")
+    
+@app.get("/summarize-transcript/{filename}")
+async def summarize_transcript(filename: str):
+    if filename not in TRANSCRIPTS:
+        raise HTTPException(status_code=404, detail="Transcript not found")
+
+    transcript = TRANSCRIPTS[filename]
+    try:
+        result = sn_pipeline.invoke({"transcript": transcript})
+        return result["summary_json"]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Pipeline execution failed: {e}")
