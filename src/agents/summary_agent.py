@@ -16,8 +16,10 @@ class SummarizerAgent:
         system_prompt = """
         You are a meeting transcript assistant. Produce a JSON object that contains the following:
         1. 'summary': contains a short summary of the transcript.
-        2. 'attendees': array of key-value pairs in the form of 'user' (Name) and 'id' (Email ID) 
-        
+        2. 'requestor': contains 'user' (name) and 'id' (email id) of the requestor. Found at the beginning of the transcript.  
+        3. 'recommended_stories': an array of new recommended action items in the form of Service Now User Stories. Should have: 'short_desc' (A name for the task), 'acceptance_criteria' (The criteria which defines the task's completion)(Leave empty if not perceivable) 
+        4. 'identified_stories': an array of existing user stories identified in the conversation. Should have 'short_desc' (A short description of the task or name of the task that has been explicitly mentioned) (Leave empty if not detected), 'number' (the ID for the user story) (Leave empty if not detected)
+
         No need for code block markdown. Respond with just the JSON object. 
         """
 

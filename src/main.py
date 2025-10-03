@@ -4,7 +4,9 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import RedirectResponse
 from io import BytesIO
 
+from agents.servicenow_agent import ServiceNowAgent
 from helpers.text_extraction import TranscriptReader
+from models import PushStoriesRequest, PushStoriesResponse
 from pipeline import sn_pipeline
 
 app = FastAPI(title="ServiceNow AI Agents API", version="0.1.0")
@@ -19,12 +21,12 @@ async def root():
 @app.post("/extract-transcript")
 async def extract_transcript(file: UploadFile = File(...)):
     try:
-        # reader = TranscriptReader(file.file)
-        contents = await file.read()  # Read file into memory
-        ext = os.path.splitext(file.filename)[-1]  # Get extension from uploaded filename
+        contents = await file.read() 
+        ext = os.path.splitext(file.filename)[-1]  
         reader = TranscriptReader(BytesIO(contents), ext)
         text = reader.read()
-        # Store transcript in-memory under filename (replace with DB later)
+        
+        # Store temporarily
         TRANSCRIPTS[file.filename] = text
         
         return {"message": "Upload successful!", "filename": file.filename}
@@ -34,13 +36,35 @@ async def extract_transcript(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error reading file: {e}")
     
 @app.get("/summarize-transcript/{filename}")
-async def summarize_transcript(filename: str):
+async def summarize_transcript(filename: str): 
     if filename not in TRANSCRIPTS:
         raise HTTPException(status_code=404, detail="Transcript not found")
 
     transcript = TRANSCRIPTS[filename]
     try:
         result = sn_pipeline.invoke({"transcript": transcript})
-        return result["summary_json"]
+        return {"summary": result["summary_json"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Pipeline execution failed: {e}")
+    
+@app.post("/push-stories", response_model=PushStoriesResponse)
+async def push_stories(payload: PushStoriesRequest):
+    sn_agent = ServiceNowAgent()
+    if not payload.confirmed_stories:
+        raise HTTPException(status_code=400, detail="No confirmed stories provided")
+
+    created_stories = []
+
+    for story in payload.confirmed_stories:
+        try:
+            result = sn_agent.create_story(
+                requested_for_sys_id=payload.requestor_sys_id,
+                short_description=story.short_desc,
+                acceptance_criteria=story.acceptance_criteria,
+                assigned_to_sys_id=payload.requestor_sys_id
+            )
+            created_stories.append(result.get("result", {}))
+        except Exception as e:
+            created_stories.append({"error": str(e), "short_desc": story.short_desc})
+
+    return {"created_stories": created_stories}
