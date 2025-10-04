@@ -1,0 +1,50 @@
+Requestor:
+Sachin Kulkarni (sachinkulkarni2@kpmg.com)
+
+Sachin: Hey team, thanks for joining again. I wanted to review the Monitoring Data Dev story we created last week. Before we dive in, let’s quickly recap our objectives.
+
+Pranav: Sure. So, as of now, the story covers syncing monitoring data from Snowflake daily, handling customer deposits, monthly usage, ratable usage, running sanity checks, retries on failures, and updating the Sigma dashboard in near real time.
+
+Neha: Right, and we scoped it to internal monitoring data first with the option to extend later for customer-level metrics.
+
+Raj: And I had added a note about performance benchmarks—tracking how quickly the data updates and the accuracy.
+
+Sachin: Exactly. That was the plan. Now, here’s the new development: I learned from one of the customer support leads that some customers also have CSAT deposits tied to their monitoring data. Right now, we aren’t accounting for that at all.
+
+Pranav: Interesting. So CSAT deposits are separate from the standard deposits we already track?
+
+Neha: Yes, they’re slightly different. They represent customer satisfaction credits, which are issued in certain scenarios. If we don’t capture them, our monitoring view will be incomplete.
+
+Raj: That means our current story is missing an entire data category. We’ll need to extend Monitoring Data Dev to handle CSAT deposits as well.
+
+Sachin: Exactly. The question is—do we create a new story for this, or should we update Monitoring Data Dev since it’s directly related?
+
+Pranav: My suggestion is to update the existing story. The scope is still “comprehensive monitoring data,” and CSAT deposits fall under that umbrella. Splitting it might cause confusion.
+
+Neha: I agree. It’s more of an extension than a new feature. But we should be explicit about it in the objectives.
+
+Raj: Alright, so let’s update Monitoring Data Dev. Current objectives stay the same, and we add: Capture CSAT deposits data, validate it during sanity checks, and ensure it reflects correctly in the Sigma dashboard.
+
+Pranav: Got it. I’ll need access to the dataset for CSAT deposits. Do we know where that lives?
+
+Neha: It’s in a separate schema in Snowflake. I can help set that up for you.
+
+Sachin: Great. And once we integrate it, let’s also test how it interacts with existing deposit and usage metrics. We don’t want duplicate counts or misalignment.
+
+Raj: True, the data model might need a small adjustment so CSAT deposits don’t get lumped in with normal deposits.
+
+Pranav: Makes sense. I’ll add that into the data sanity check step.
+
+Neha: One more thing—we should think about how to surface CSAT deposits in the dashboard. Do we show them as a separate metric, or merge them with customer deposits?
+
+Sachin: I think for now, let’s keep them separate. That way, we can clearly see the impact of CSAT. Later, if we want to roll them up, we can.
+
+Raj: Works for me.
+
+Pranav: Alright, so action items: I’ll update the Monitoring Data Dev story in ServiceNow with the CSAT deposits requirement. Neha, you’ll give me access to the schema. Raj, can you review the schema changes once I draft them?
+
+Raj: Yes, I’ll review them and make sure the pipeline doesn’t break with the new data.
+
+Neha: And I’ll also check if CSAT deposits have edge cases, like negative values or missing data.
+
+Sachin: Perfect. Once that’s in place, we’ll re-test and validate. Thanks everyone. Let’s keep this moving.

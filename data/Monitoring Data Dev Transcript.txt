@@ -1,0 +1,64 @@
+Requestor:
+Sachin Kulkarni (sachinkulkarni2@kpmg.com)
+
+Sachin: Hey everyone, thanks for joining. I wanted to use today’s sync to discuss how we should track monitoring data. I feel like our dashboards aren’t capturing the full picture yet.
+
+Pranav: Yeah, I noticed that too. Right now, we have some of the metrics, but they don’t give enough visibility into customer usage patterns.
+
+Neha: Exactly. For example, our monitoring data currently just captures a comparative view of how much a customer has used. We aren't capturing what their ideal usage should look like. 
+
+Raj: Before we dive deeper, can we clarify—what’s the scope of this story? Are we trying to enhance the existing monitoring framework, or are we planning to create a separate one for usage data?
+
+Sachin: Good question. My thought is that we keep one central monitoring data framework. That way, we’re not duplicating efforts. But we need it to be robust enough to handle things like customer deposits, usage spikes, ratable usage and other data points.
+
+Pranav: That makes sense. If we try to manage separate frameworks, we’ll probably end up with inconsistencies.
+
+Neha: Totally agree. We need a single story that can track this comprehensively. Maybe something like Monitoring Data Dev?
+
+Sachin: Yeah, let’s call it Monitoring Data Dev. It’s straightforward and conveys that this is development work for the monitoring module.
+
+Raj: Okay, so under Monitoring Data Dev, we should define what we want to achieve. I can think of a few Engineer monitoring data from Snowflake and ensure it syncs daily. Accommodate customer-specific metrics like Customer deposits, monthly usage, ratable usage. Ensure dashboards update in near real time.
+
+Pranav: I’d add one more—data sanity checks. Before we push anything to the dashboard, we need to confirm that the dataset is clean, complete, and accurate. Otherwise, we’ll have gaps.
+
+Neha: Good point. And maybe we should also define a fallback plan in case the sync fails. Something like a retry mechanism?
+
+Sachin: Absolutely. So far, we have Create Monitoring Data Dev story. Objectives are to cover customer deposits, data sync with Snowflake, sanity checks, retries, and dashboard updates.
+
+Raj: Who will own this story?
+
+Pranav: I can take it. I’ve already been looking into how the monitoring pipeline integrates with Sigma.
+
+Neha: That’s good. Maybe I can help you with the customer deposits angle, since I’ve already been analyzing that dataset.
+
+Sachin: Perfect. Pranav, you’ll own the story. Neha, you’ll support on the deposits side. Raj, can you review the objectives which are basically the acceptance criteria for this one and ensure we’re not missing anything from a technical feasibility perspective?
+
+Raj: Sure thing. I’ll also document the dependencies—like needing access to Sigma APIs and ensuring the data warehouse has the right schemas.
+
+Pranav: Also, one question: should this story be limited to internal monitoring data first, or should we immediately include external customer data too?
+
+Sachin: Hmm, good question. I’d say let’s scope it to internal monitoring first. But we should architect it in a way that it’s easy to extend later.
+
+Neha: That’s smart. Start small but keep the foundation flexible.
+
+Raj: Right, otherwise the story will get too big to deliver in one sprint.
+
+Sachin: Exactly. Okay, so here’s the plan—We’ll create Monitoring Data Dev. Assign Pranav as owner, Neha as support, Raj as reviewer. Limit initial scope to internal monitoring data. Extend later to customer-level metrics.
+
+Pranav: Sounds good. I’ll start by drafting the story in ServiceNow after this call.
+
+Neha: Maybe we should also note that this story is a dependency for the Sigma dashboard integration. Otherwise, people might not realize how important it is.
+
+Sachin: Great point. Let’s make sure we tag that in the description.
+
+Raj: Also, we should track performance benchmarks—like how quickly the data updates and how accurate the results are.
+
+Sachin: Nice addition. I’ll note that as part of acceptance criteria.
+
+Pranav: Okay, so next steps: I’ll create the story, circulate the draft, and get your inputs before finalizing.
+
+Neha: Perfect.
+
+Raj: Works for me.
+
+Sachin: Awesome. Thanks everyone. Let’s get this moving.
