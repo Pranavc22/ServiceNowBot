@@ -4,6 +4,7 @@ from typing import List, Optional, Dict, Any
 class StoryItem(BaseModel):
     short_desc: str
     acceptance_criteria: Optional[str] = ""
+    action_type: str
 
 
 class PushStoriesRequest(BaseModel):

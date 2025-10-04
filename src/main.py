@@ -43,7 +43,7 @@ async def summarize_transcript(filename: str):
     transcript = TRANSCRIPTS[filename]
     try:
         result = sn_pipeline.invoke({"transcript": transcript})
-        return {"summary": result["summary_json"]}
+        return result["summary_json"]
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Pipeline execution failed: {e}")
     
@@ -57,13 +57,39 @@ async def push_stories(payload: PushStoriesRequest):
 
     for story in payload.confirmed_stories:
         try:
-            result = sn_agent.create_story(
-                requested_for_sys_id=payload.requestor_sys_id,
-                short_description=story.short_desc,
-                acceptance_criteria=story.acceptance_criteria,
-                assigned_to_sys_id=payload.requestor_sys_id
-            )
-            created_stories.append(result.get("result", {}))
+            if story.action_type.lower() == "create":
+                result = sn_agent.create_story(
+                    requested_for_sys_id=payload.requestor_sys_id,
+                    short_description=story.short_desc,
+                    acceptance_criteria=story.acceptance_criteria,
+                    assigned_to_sys_id=payload.requestor_sys_id
+                )
+                created_stories.append(result.get("result", {}))
+
+            elif story.action_type.lower() == "update":
+                update_payload = {}
+                if story.acceptance_criteria:
+                    update_payload["acceptance_criteria"] = story.acceptance_criteria
+
+                if not update_payload:
+                    created_stories.append({
+                        "error": "No update fields provided",
+                        "short_desc": story.short_desc
+                    })
+                    continue
+
+                result = sn_agent.update_story(
+                    short_desc=story.short_desc,
+                    updates=update_payload
+                )
+                created_stories.append(result.get("result", {}))
+
+            else:
+                created_stories.append({
+                    "error": f"Unknown action_type '{story.action_type}'",
+                    "short_desc": story.short_desc
+                })
+
         except Exception as e:
             created_stories.append({"error": str(e), "short_desc": story.short_desc})
 

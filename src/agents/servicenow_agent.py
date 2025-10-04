@@ -89,3 +89,69 @@ class ServiceNowAgent:
             )
 
         return resp.json()
+    
+    def find_story_by_short_desc(
+        self, short_desc: str, limit: int = 10
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Find ServiceNow stories by short description (LIKE search).
+
+        Parameters:
+            short_desc: Partial or full short description to search
+            limit: Max number of results to return
+
+        Returns:
+            dict or None: JSON response containing matching stories, or None if not found
+        """
+        encoded_desc = urllib.parse.quote(short_desc)
+        url = (
+            f"{self.base_url}/api/now/table/rm_story"
+            f"?sysparm_query=short_descriptionLIKE{encoded_desc}"
+            f"&sysparm_fields=sys_id,number,short_description"
+            f"&sysparm_limit={limit}"
+        )
+
+        resp = self.session.get(url)
+        if resp.status_code != 200:
+            raise RuntimeError(
+                f"ServiceNow API error {resp.status_code}: {resp.text}"
+            )
+
+        data = resp.json()
+        result = data.get("result", [])
+        return result if result else None
+
+    def update_story(
+        self,
+        short_desc: str,
+        updates: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Update an existing ServiceNow story found by short description.
+
+        Parameters:
+            short_desc: The short description of the story to update
+            updates: A dict containing the fields to update
+
+        Returns:
+            dict or None: JSON response of the updated story, or None if not found
+        """
+        stories = self.find_story_by_short_desc(short_desc=short_desc, limit=1)
+        if not stories:
+            print(f"No story found with short description LIKE '{short_desc}'")
+            return None
+
+        sys_id = stories[0]["sys_id"]
+
+        url = (
+            f"{self.base_url}/api/now/table/rm_story/{sys_id}"
+            f"?sysparm_fields=sys_id,number,short_description"
+        )
+
+        resp = self.session.patch(url, data=json.dumps(updates))
+        if resp.status_code != 200:
+            raise RuntimeError(
+                f"ServiceNow API error {resp.status_code}: {resp.text}"
+            )
+
+        return resp.json()

@@ -17,7 +17,7 @@ class LLMClient:
         api_key_env: str = "OPENROUTER_API_KEY",
         api_key: Optional[str] = None,
         endpoint: Optional[str] = None,
-        default_model: str = "meta-llama/llama-3.3-8b-instruct:free", # IMP: USE FREE MODELS ONLY.
+        default_model: str = "meta-llama/llama-3.3-70b-instruct:free", # IMP: USE FREE MODELS ONLY.
     ):
         self.api_key = api_key or os.environ.get(api_key_env)
         if not self.api_key:
