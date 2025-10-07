@@ -8,8 +8,17 @@ from agents.servicenow_agent import ServiceNowAgent
 from helpers.text_extraction import TranscriptReader
 from models import PushStoriesRequest, PushStoriesResponse
 from pipeline import sn_pipeline
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="ServiceNow AI Agents API", version="0.1.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],             # <-- for production, replace with list of allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # temporary in-memory storage
 TRANSCRIPTS = {}
